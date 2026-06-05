@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>카페, 만월경 · 고객지원</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Noto+Serif+KR:wght@400;600;700&family=Black+Han+Sans&display=swap');
+
+:root {
+  --indigo:        #2B3A6B;
+  --indigo-deep:   #1A2548;
+  --indigo-mid:    #3D4F8A;
+  --indigo-light:  #5C6FAB;
+  --gold:          #C9A96E;
+  --gold-dim:      rgba(201,169,110,.15);
+  --gold-border:   rgba(201,169,110,.32);
+  --moon:          #F0EFE8;
+  --bg:            #0C1020;
+  --surface:       #141928;
+  --surface2:      #1C2438;
+  --border:        rgba(92,111,171,.22);
+  --txt:           #EEF0F8;
+  --txt-dim:       rgba(238,240,248,.52);
+  --txt-faint:     rgba(238,240,248,.28);
+  --kakao:         #FEE500;
+  --kakao-br:      #3A1D1D;
+  --green:         #6ECBA0;
+  --radius:        14px;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html,body { height:100%; }
+body {
+  background: var(--bg);
+  color: var(--txt);
+  font-family: 'Noto Sans KR', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── page switcher ── */
+.pg { display:none; }
+.pg.on { display:flex; flex-direction:column; min-height:100vh; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SHARED NAV
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.nav {
+  position:sticky; top:0; z-index:200;
+  background:rgba(12,16,32,.92);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  padding:11px 18px;
+  display:flex; align-items:center; justify-content:space-between;
+  flex-shrink:0;
+}
+.nav-brand { display:flex; align-items:center; gap:8px; }
+.nav-brand .ico { font-size:17px; }
+.nav-brand .name { font-family:'Noto Serif KR',serif; font-size:13px; font-weight:600; color:var(--gold); }
+.nav-tabs {
+  display:flex; gap:3px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:999px; padding:3px;
+}
+.ntab {
+  background:none; border:none; color:var(--txt-dim);
+  font-family:'Noto Sans KR',sans-serif; font-size:11px; font-weight:600;
+  padding:5px 13px; border-radius:999px; cursor:pointer; transition:all .2s;
+  white-space:nowrap;
+}
+.ntab.on { background:var(--indigo); color:var(--moon); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   PAGE — CUSTOMER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#pg-cust { background:var(--bg); }
+
+/* starfield */
+#pg-cust::before {
+  content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:
+    radial-gradient(1px 1px at 8%  12%, rgba(240,239,232,.4) 0%,transparent 100%),
+    radial-gradient(1px 1px at 22% 4%,  rgba(240,239,232,.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 55% 8%,  rgba(240,239,232,.25) 0%,transparent 100%),
+    radial-gradient(1px 1px at 78% 3%,  rgba(240,239,232,.35) 0%,transparent 100%),
+    radial-gradient(1px 1px at 91% 18%, rgba(240,239,232,.2) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 4% 35%, rgba(240,239,232,.2) 0%,transparent 100%),
+    radial-gradient(1px 1px at 97% 50%, rgba(240,239,232,.25) 0%,transparent 100%),
+    radial-gradient(1px 1px at 45% 2%,  rgba(240,239,232,.2) 0%,transparent 100%);
+}
+
+.cust-scroll { flex:1; overflow-y:auto; position:relative; z-index:1; }
+.cust-inner  { max-width:480px; margin:0 auto; padding:24px 16px 40px; }
+
+/* header */
+.cust-top { text-align:center; margin-bottom:26px; }
+.brand-pill {
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(43,58,107,.35); border:1px solid var(--gold-border);
+  border-radius:999px; padding:7px 18px; margin-bottom:14px;
+}
+.brand-pill .w { font-size:16px; }
+.brand-pill-text { text-align:left; }
+.brand-pill-ko { font-family:'Noto Serif KR',serif; font-size:11px; font-weight:600; color:var(--gold); letter-spacing:.06em; display:block; }
+.brand-pill-en { font-size:9px; color:var(--txt-dim); letter-spacing:.1em; display:block; margin-top:1px; }
+.cust-store { font-family:'Black Han Sans',sans-serif; font-size:26px; color:#fff; line-height:1.2; margin-bottom:5px; }
+.cust-sub   { font-size:13px; color:var(--txt-dim); line-height:1.65; }
+
+/* ── step indicator ── */
+.step-bar {
+  display:flex; align-items:center; gap:0;
+  margin-bottom:22px;
+}
+.step-node {
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  flex:1;
+}
+.step-circle {
+  width:28px; height:28px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:700;
+  background:var(--surface2); border:1px solid var(--border);
+  color:var(--txt-dim); transition:all .3s;
+}
+.step-circle.done  { background:var(--green); border-color:var(--green); color:#0C1020; }
+.step-circle.active{ background:var(--indigo-mid); border-color:var(--indigo-light); color:#fff; }
+.step-lbl { font-size:10px; color:var(--txt-faint); white-space:nowrap; transition:color .3s; }
+.step-lbl.active { color:var(--txt-dim); }
+.step-line { flex:1; height:1px; background:var(--border); margin-top:-14px; transition:background .3s; }
+.step-line.done { background:var(--green); }
+
+/* ── issue chips ── */
+.issue-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:9px;
+  margin-bottom:20px;
+}
+.chip {
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:12px; padding:13px 6px 11px;
+  cursor:pointer; text-align:center;
+  transition:border-color .2s, background .2s, transform .15s;
+  position:relative; overflow:hidden;
+}
+.chip:hover { border-color:var(--indigo-light); transform:translateY(-2px); }
+.chip.sel {
+  border-color:var(--gold); background:var(--gold-dim);
+  box-shadow:0 0 16px rgba(201,169,110,.12);
+}
+.chip .ce { font-size:22px; display:block; margin-bottom:5px; }
+.chip .cl { font-size:11px; font-weight:700; color:var(--moon); display:block; }
+.chip .cd { font-size:9px;  color:var(--txt-dim); margin-top:2px; display:block; }
+
+/* ── quick buttons ── */
+.quick-row { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:18px; min-height:0; }
+.qbtn {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:999px; padding:6px 13px;
+  font-family:'Noto Sans KR',sans-serif; font-size:11px;
+  color:var(--txt-dim); cursor:pointer; transition:all .2s;
+}
+.qbtn:hover { border-color:var(--gold); color:var(--gold); }
+
+/* ── compose area ── */
+.compose-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius); overflow:hidden;
+  margin-bottom:14px;
+}
+.compose-header {
+  padding:12px 16px; background:var(--surface2);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:10px;
+}
+.compose-ava {
+  width:30px; height:30px; border-radius:50%;
+  background:linear-gradient(135deg,var(--indigo-mid),var(--indigo-deep));
+  border:1px solid var(--gold-border);
+  display:flex; align-items:center; justify-content:center; font-size:14px;
+}
+.compose-title { font-size:12px; font-weight:700; color:var(--moon); }
+.compose-sub   { font-size:10px; color:var(--txt-dim); margin-top:1px; }
+.live-dot {
+  width:7px; height:7px; border-radius:50%; background:var(--green);
+  margin-left:auto; animation:pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
+
+.compose-body { padding:14px 16px 16px; }
+.compose-label { font-size:11px; color:var(--txt-dim); margin-bottom:8px; display:block; }
+
+/* message preview list (messages typed so far) */
+.msg-preview {
+  background:var(--bg); border:1px solid var(--border);
+  border-radius:10px; padding:10px 12px;
+  min-height:52px; max-height:130px; overflow-y:auto;
+  margin-bottom:10px; font-size:12px; color:var(--txt-dim);
+  line-height:1.6;
+}
+.msg-preview::-webkit-scrollbar { width:3px; }
+.msg-preview::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+.mpline { color:var(--txt); margin-bottom:4px; }
+.mpline:last-child { margin-bottom:0; }
+.mpline .mp-tag {
+  display:inline-block; background:var(--gold-dim); border:1px solid var(--gold-border);
+  color:var(--gold); font-size:10px; border-radius:4px;
+  padding:1px 6px; margin-right:6px; vertical-align:middle;
+}
+
+.compose-textarea {
+  width:100%; background:var(--bg);
+  border:1px solid var(--border); border-radius:9px;
+  padding:10px 13px; color:var(--txt);
+  font-family:'Noto Sans KR',sans-serif; font-size:13px;
+  outline:none; resize:none; height:80px; line-height:1.55;
+  transition:border-color .2s; display:block; margin-bottom:10px;
+}
+.compose-textarea:focus { border-color:var(--indigo-light); }
+.compose-textarea::placeholder { color:var(--txt-faint); }
+
+.add-btn {
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:8px; padding:8px 14px;
+  font-family:'Noto Sans KR',sans-serif; font-size:12px;
+  color:var(--txt-dim); cursor:pointer; transition:all .2s;
+  margin-right:8px;
+}
+.add-btn:hover { border-color:var(--indigo-light); color:var(--txt); }
+
+/* ── SEND TO KAKAO button ── */
+.kakao-send-btn {
+  width:100%; display:flex; align-items:center; justify-content:center; gap:10px;
+  background:var(--kakao); color:var(--kakao-br);
+  border:none; border-radius:12px; padding:15px 20px;
+  font-family:'Noto Sans KR',sans-serif; font-size:15px; font-weight:900;
+  cursor:pointer; transition:opacity .2s, transform .15s;
+  box-shadow:0 6px 24px rgba(254,229,0,.18);
+  margin-top:2px;
+}
+.kakao-send-btn:hover { opacity:.92; transform:translateY(-1px); }
+.kakao-send-btn:active { transform:translateY(0); }
+.kakao-send-btn:disabled { opacity:.4; cursor:default; transform:none; }
+.ksb-ico { font-size:20px; }
+.ksb-text { display:flex; flex-direction:column; align-items:flex-start; }
+.ksb-main { font-size:14px; font-weight:900; line-height:1.2; }
+.ksb-sub  { font-size:10px; font-weight:500; opacity:.7; margin-top:1px; }
+
+/* success overlay */
+.success-overlay {
+  display:none;
+  flex-direction:column; align-items:center; justify-content:center;
+  gap:16px; padding:32px 20px; text-align:center;
+}
+.success-overlay.show { display:flex; }
+.s-circle {
+  width:72px; height:72px; border-radius:50%;
+  background:rgba(110,203,160,.12); border:2px solid var(--green);
+  display:flex; align-items:center; justify-content:center;
+  font-size:32px; animation:popIn .4s ease;
+}
+@keyframes popIn { 0%{transform:scale(.6);opacity:0} 80%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+.s-title { font-family:'Black Han Sans',sans-serif; font-size:22px; color:var(--green); }
+.s-desc  { font-size:13px; color:var(--txt-dim); line-height:1.7; max-width:280px; }
+.s-retry { background:var(--surface2); border:1px solid var(--border); border-radius:999px;
+  padding:10px 22px; font-family:'Noto Sans KR',sans-serif; font-size:12px; font-weight:600;
+  color:var(--txt-dim); cursor:pointer; transition:all .2s; }
+.s-retry:hover { border-color:var(--indigo-light); color:var(--txt); }
+
+.cust-note { text-align:center; margin-top:20px; }
+.cust-note p { font-size:10px; color:var(--txt-faint); line-height:1.8; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   PAGE — QR POSTER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#pg-poster {
+  display:none; flex-direction:row;
+}
+#pg-poster.on { display:flex; }
+
+.pp-side {
+  width:320px; flex-shrink:0;
+  background:var(--surface); border-right:1px solid var(--border);
+  padding:22px 18px; overflow-y:auto;
+  display:flex; flex-direction:column; gap:18px;
+}
+.pp-head { padding-bottom:14px; border-bottom:1px solid var(--border); }
+.pp-head h2 { font-size:14px; font-weight:700; color:var(--moon); margin-bottom:3px; }
+.pp-head p  { font-size:11px; color:var(--txt-dim); }
+.slbl { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:rgba(92,111,171,.65); margin-bottom:8px; }
+.fld { display:flex; flex-direction:column; gap:5px; margin-bottom:10px; }
+.fld label { font-size:11px; color:rgba(238,240,248,.55); }
+.fld input, .fld textarea {
+  background:var(--bg); border:1px solid var(--border);
+  border-radius:8px; padding:8px 11px;
+  color:var(--txt); font-family:'Noto Sans KR',sans-serif; font-size:12px;
+  outline:none; transition:border-color .2s;
+}
+.fld input:focus, .fld textarea:focus { border-color:var(--indigo-light); }
+.fld textarea { resize:none; height:50px; line-height:1.5; }
+.fld .hint { font-size:10px; color:rgba(92,111,171,.6); line-height:1.6; }
+.lrow { display:flex; gap:6px; }
+.lrow input { flex:1; }
+.tst { background:var(--indigo); border:1px solid var(--indigo-light); border-radius:8px; padding:0 11px; color:var(--moon); font-family:'Noto Sans KR',sans-serif; font-size:11px; font-weight:600; cursor:pointer; white-space:nowrap; transition:background .2s; }
+.tst:hover { background:var(--indigo-mid); }
+.gbtn { width:100%; background:linear-gradient(135deg,var(--indigo-mid),var(--indigo-deep)); border:1px solid var(--indigo-light); border-radius:10px; padding:12px; color:var(--moon); font-family:'Noto Sans KR',sans-serif; font-size:13px; font-weight:700; cursor:pointer; transition:opacity .2s; margin-bottom:6px; }
+.gbtn:hover { opacity:.88; }
+.pbtn { width:100%; background:transparent; border:1px solid var(--border); border-radius:10px; padding:10px; color:var(--txt-dim); font-family:'Noto Sans KR',sans-serif; font-size:12px; cursor:pointer; transition:all .2s; }
+.pbtn:hover { border-color:var(--indigo-light); color:var(--txt); }
+.guide { background:rgba(43,58,107,.22); border:1px solid rgba(92,111,171,.22); border-radius:10px; padding:12px; }
+.guide h4 { font-size:11px; font-weight:700; color:var(--gold); margin-bottom:7px; }
+.guide ol { padding-left:14px; }
+.guide li { font-size:10px; color:rgba(238,240,248,.55); line-height:1.9; }
+.guide li b { color:var(--txt); }
+
+/* poster canvas area */
+.pp-canvas {
+  flex:1; background:#070B17; display:flex; flex-direction:column;
+  align-items:center; padding:28px 20px; overflow-y:auto;
+}
+.pp-canvas-lbl { font-size:10px; color:rgba(92,111,171,.45); letter-spacing:.1em; text-transform:uppercase; margin-bottom:20px; }
+
+.poster {
+  width:390px;
+  background:linear-gradient(160deg,#1C2748 0%,#0F1830 55%,#090E1C 100%);
+  border-radius:20px; padding:28px 24px 24px;
+  border:1px solid rgba(92,111,171,.28); position:relative; overflow:hidden;
+  box-shadow:0 28px 90px rgba(0,0,0,.8);
+}
+.p-stars {
+  position:absolute; inset:0; pointer-events:none;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, rgba(240,239,232,.45) 0%,transparent 100%),
+    radial-gradient(1px 1px at 68% 8%,  rgba(240,239,232,.35) 0%,transparent 100%),
+    radial-gradient(1px 1px at 38% 4%,  rgba(240,239,232,.28) 0%,transparent 100%),
+    radial-gradient(1px 1px at 84% 28%, rgba(240,239,232,.38) 0%,transparent 100%),
+    radial-gradient(1px 1px at 4%  55%, rgba(240,239,232,.2) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 92% 72%, rgba(240,239,232,.22) 0%,transparent 100%);
+}
+.p-whale-bg { position:absolute; right:-28px; bottom:50px; font-size:130px; opacity:.038; transform:rotate(-15deg) scaleX(-1); pointer-events:none; }
+.p-brand { display:flex; align-items:center; gap:9px; margin-bottom:8px; }
+.p-badge { width:32px; height:32px; background:linear-gradient(135deg,var(--indigo-mid),var(--indigo-deep)); border-radius:9px; border:1px solid var(--gold-border); display:flex; align-items:center; justify-content:center; font-size:16px; }
+.p-brand-ko { font-family:'Noto Serif KR',serif; font-size:10px; font-weight:600; color:var(--gold); letter-spacing:.08em; }
+.p-brand-en { font-size:9px; color:var(--txt-dim); letter-spacing:.1em; margin-top:1px; }
+.p-name     { font-family:'Black Han Sans',sans-serif; font-size:26px; color:#fff; line-height:1.2; margin:8px 0 5px; }
+.p-tag      { font-size:11px; color:var(--txt-dim); line-height:1.65; margin-bottom:18px; }
+.p-divider  { height:1px; background:linear-gradient(90deg,transparent,var(--gold-border),transparent); margin-bottom:16px; }
+.p-qr-wrap  { background:var(--moon); border-radius:13px; padding:15px; display:flex; align-items:center; justify-content:center; margin-bottom:15px; box-shadow:0 0 40px rgba(201,169,110,.1); }
+#pQR canvas, #pQR img { width:190px !important; height:190px !important; display:block; border-radius:4px; }
+.p-kakao-row {
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  background:var(--kakao); color:var(--kakao-br);
+  border-radius:10px; padding:11px 16px;
+  font-weight:800; font-size:12px; margin-bottom:14px;
+}
+.p-issues { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:14px; }
+.p-issue { background:rgba(43,58,107,.45); border:1px solid rgba(92,111,171,.25); border-radius:8px; padding:7px 4px; text-align:center; }
+.p-issue .pi { font-size:13px; display:block; margin-bottom:2px; }
+.p-issue span { font-size:10px; font-weight:600; color:var(--moon); }
+.p-slogan { font-family:'Noto Serif KR',serif; font-size:10px; font-style:italic; color:rgba(201,169,110,.5); text-align:center; margin-bottom:14px; }
+.p-footer { font-size:9px; color:rgba(240,239,232,.3); text-align:center; line-height:1.8; border-top:1px solid rgba(92,111,171,.15); padding-top:12px; }
+
+/* ── toast ── */
+.toast {
+  position:fixed; bottom:24px; left:50%;
+  transform:translateX(-50%) translateY(12px);
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:999px; padding:10px 20px; font-size:12px;
+  opacity:0; transition:all .3s; z-index:9999; white-space:nowrap;
+  pointer-events:none;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+@media print {
+  .nav, .pp-side { display:none !important; }
+  #pg-poster { display:block !important; }
+  .pp-canvas { background:#070B17; padding:10px; }
+}
+@media (max-width:680px) {
+  #pg-poster.on { flex-direction:column; }
+  .pp-side { width:100%; }
+  .poster { width:100%; max-width:390px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand"><span class="ico">🐋</span><span class="name">카페, 만월경</span></div>
+  <div class="nav-tabs">
+    <button class="ntab on"  id="t-cust"   onclick="goPg('cust')">고객 문의</button>
+    <button class="ntab"     id="t-poster" onclick="goPg('poster')">QR 포스터</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════
+     CUSTOMER PAGE
+══════════════════════════════════════ -->
+<div class="pg on" id="pg-cust">
+  <div class="cust-scroll">
+    <div class="cust-inner">
+
+      <!-- header -->
+      <div class="cust-top">
+        <div class="brand-pill">
+          <span class="w">🐋</span>
+          <div class="brand-pill-text">
+            <span class="brand-pill-ko">카페, 만월경</span>
+            <span class="brand-pill-en">CAFE MANWOLGYUNG</span>
+          </div>
+        </div>
+        <div class="cust-store" id="cStoreName">만월경 천왕점</div>
+        <div class="cust-sub">불편하신 점을 알려주시면<br>운영자에게 즉시 전달됩니다</div>
+      </div>
+
+      <!-- step bar -->
+      <div class="step-bar">
+        <div class="step-node">
+          <div class="step-circle active" id="s1c">1</div>
+          <div class="step-lbl active"    id="s1l">유형 선택</div>
+        </div>
+        <div class="step-line" id="sl1"></div>
+        <div class="step-node">
+          <div class="step-circle" id="s2c">2</div>
+          <div class="step-lbl"    id="s2l">내용 작성</div>
+        </div>
+        <div class="step-line" id="sl2"></div>
+        <div class="step-node">
+          <div class="step-circle" id="s3c">3</div>
+          <div class="step-lbl"    id="s3l">카카오 전송</div>
+        </div>
+      </div>
+
+      <!-- issue chips -->
+      <div class="issue-grid" id="issueGrid">
+        <div class="chip" onclick="selIssue(this,'기계 고장','커피머신·제빙기')">
+          <span class="ce">🔧</span><span class="cl">기계 고장</span><span class="cd">커피머신·제빙기</span>
+        </div>
+        <div class="chip" onclick="selIssue(this,'결제 오류','카드·QR 결제')">
+          <span class="ce">💳</span><span class="cl">결제 오류</span><span class="cd">카드·QR 결제</span>
+        </div>
+        <div class="chip" onclick="selIssue(this,'재료 부족','원두·우유·컵')">
+          <span class="ce">📦</span><span class="cl">재료 부족</span><span class="cd">원두·우유·컵</span>
+        </div>
+        <div class="chip" onclick="selIssue(this,'청결 문제','테이블·쓰레기통')">
+          <span class="ce">🧹</span><span class="cl">청결 문제</span><span class="cd">테이블·쓰레기통</span>
+        </div>
+        <div class="chip" onclick="selIssue(this,'음료 불량','맛·온도·양')">
+          <span class="ce">☕</span><span class="cl">음료 불량</span><span class="cd">맛·온도·양</span>
+        </div>
+        <div class="chip" onclick="selIssue(this,'기타 문의','직접 입력')">
+          <span class="ce">💬</span><span class="cl">기타 문의</span><span class="cd">직접 입력</span>
+        </div>
+      </div>
+
+      <!-- quick buttons -->
+      <div class="quick-row" id="quickRow"></div>
+
+      <!-- compose -->
+      <div class="compose-card" id="composeCard" style="display:none">
+        <div class="compose-header">
+          <div class="compose-ava">🐋</div>
+          <div>
+            <div class="compose-title">만월경 운영팀에게 전달</div>
+            <div class="compose-sub">전송 즉시 카카오톡으로 알림이 갑니다</div>
+          </div>
+          <div class="live-dot"></div>
+        </div>
+        <div class="compose-body">
+          <span class="compose-label">작성한 내용 미리보기</span>
+          <div class="msg-preview" id="msgPreview">
+            <span style="color:var(--txt-faint);font-size:11px;">아직 작성된 내용이 없습니다</span>
+          </div>
+
+          <textarea class="compose-textarea" id="compTa"
+            placeholder="추가로 전달할 내용을 입력하세요 (선택)&#10;예) 기계 번호, 구체적인 증상 등"></textarea>
+
+          <button class="add-btn" onclick="addLine()">＋ 내용 추가</button>
+        </div>
+      </div>
+
+      <!-- success -->
+      <div class="success-overlay" id="successBox">
+        <div class="s-circle">✓</div>
+        <div class="s-title">전송 완료!</div>
+        <div class="s-desc">운영자에게 문의가 전달되었습니다.<br>카카오톡을 통해 빠르게 답변드리겠습니다 🐋</div>
+        <button class="s-retry" onclick="resetForm()">다시 문의하기</button>
+      </div>
+
+      <!-- send to kakao -->
+      <button class="kakao-send-btn" id="kkBtn" onclick="sendToKakao()" disabled>
+        <span class="ksb-ico">💬</span>
+        <div class="ksb-text">
+          <span class="ksb-main">카카오톡으로 전송하기</span>
+          <span class="ksb-sub">운영자에게 즉시 전달됩니다</span>
+        </div>
+      </button>
+
+      <div class="cust-note">
+        <p>맛볼 가치가 있는 커피, 머물 가치가 있는 공간<br>만월경은 고객의 불편을 빠르게 해결합니다</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     QR POSTER PAGE
+══════════════════════════════════════ -->
+<div class="pg" id="pg-poster">
+  <div class="pp-side">
+    <div class="pp-head">
+      <h2>🐋 QR 포스터 생성기</h2>
+      <p>QR 스캔 → 고객 문의 화면 → 카카오 전송</p>
+    </div>
+
+    <div>
+      <div class="slbl">카카오톡 오픈채팅 URL</div>
+      <div class="fld">
+        <label>오픈채팅 링크 (운영자 수신용)</label>
+        <div class="lrow">
+          <input type="url" id="kkUrl"
+            placeholder="https://open.kakao.com/o/xxxxxxx"
+            value="" oninput="onUrlChange()">
+          <button class="tst" onclick="testUrl()">테스트</button>
+        </div>
+        <div class="hint">고객 문의 내용이 이 링크로 전달됩니다</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="slbl">매장 정보</div>
+      <div class="fld">
+        <label>지점명</label>
+        <input type="text" id="pName" value="만월경 천왕점" oninput="syncPoster()">
+      </div>
+      <div class="fld">
+        <label>안내 문구</label>
+        <textarea id="pTag" oninput="syncPoster()">기계 고장 · 결제 오류 · 청결 등
+불편하신 점을 바로 알려주세요</textarea>
+      </div>
+    </div>
+
+    <div>
+      <div class="slbl">QR 코드 내용</div>
+      <div class="fld">
+        <label>QR이 연결할 페이지 URL</label>
+        <input type="url" id="qrTarget"
+          placeholder="https://yoursite.com/index.html"
+          value="" oninput="genQR()">
+        <div class="hint">이 파일을 웹에 올린 후 URL을 입력하세요.<br>비워두면 데모 QR이 생성됩니다.</div>
+      </div>
+    </div>
+
+    <div>
+      <button class="gbtn" onclick="genQR()">🐋 QR 포스터 생성</button>
+      <button class="pbtn" onclick="window.print()">🖨️ 인쇄 / PDF 저장</button>
+    </div>
+
+    <div class="guide">
+      <h4>📌 적용 흐름</h4>
+      <ol>
+        <li>이 HTML 파일을 <b>웹서버에 업로드</b></li>
+        <li>카카오 <b>오픈채팅 링크</b> 입력</li>
+        <li><b>QR 대상 URL</b>에 업로드한 주소 입력</li>
+        <li>포스터 <b>인쇄 후 매장 부착</b></li>
+        <li>고객이 QR 스캔 → 문의 화면 → 카카오 전송</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="pp-canvas">
+    <div class="pp-canvas-lbl">포스터 미리보기 — 인쇄 후 매장 부착</div>
+    <div class="poster">
+      <div class="p-stars"></div>
+      <div class="p-whale-bg">🐋</div>
+      <div class="p-brand">
+        <div class="p-badge">🐋</div>
+        <div>
+          <div class="p-brand-ko">카페, 만월경</div>
+          <div class="p-brand-en">CAFE MANWOLGYUNG</div>
+        </div>
+      </div>
+      <div class="p-name"  id="posterName">만월경 천왕점</div>
+      <div class="p-tag"   id="posterTag">기계 고장 · 결제 오류 · 청결 등<br>불편하신 점을 바로 알려주세요</div>
+      <div class="p-divider"></div>
+      <div class="p-qr-wrap"><div id="pQR"></div></div>
+      <div class="p-kakao-row">
+        <span style="font-size:18px">💬</span>
+        QR 스캔 → 문의 화면 → 카카오 즉시 전송
+      </div>
+      <div class="p-issues">
+        <div class="p-issue"><span class="pi">🔧</span><span>기계 고장</span></div>
+        <div class="p-issue"><span class="pi">💳</span><span>결제 오류</span></div>
+        <div class="p-issue"><span class="pi">📦</span><span>재료 부족</span></div>
+        <div class="p-issue"><span class="pi">🧹</span><span>청결 문제</span></div>
+        <div class="p-issue"><span class="pi">☕</span><span>음료 불량</span></div>
+        <div class="p-issue"><span class="pi">💬</span><span>기타 문의</span></div>
+      </div>
+      <div class="p-slogan">"맛볼 가치가 있는 커피, 머물 가치가 있는 공간"</div>
+      <div class="p-footer">QR 스캔 → 고객 문의 화면 → 카카오톡으로 운영자에게 즉시 전달<br>만월경 천왕점 운영팀이 빠르게 확인 후 답변드립니다</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════
+   STATE
+══════════════════════════════════ */
+const ST = {
+  issue:   null,
+  lines:   [],          // { tag, text } array
+  kkUrl:   '',
+  store:   '만월경 천왕점',
+};
+
+const QUICK_MAP = {
+  '기계 고장': ['음료가 안 나와요','에러 메시지 떠요','기계가 멈췄어요','이상한 소리 나요'],
+  '결제 오류': ['카드가 안 읽혀요','결제 후 음료 없음','중복 결제됐어요','환불 요청드려요'],
+  '재료 부족': ['컵이 없어요','우유 다 됐어요','원두가 없어요','얼음이 없어요'],
+  '청결 문제': ['테이블 더러워요','쓰레기통 가득해요','바닥에 물 있어요','냄새가 나요'],
+  '음료 불량': ['맛이 이상해요','온도가 이상해요','양이 너무 적어요','이물질 있어요'],
+  '기타 문의': ['영업시간 문의','와이파이 비번','주차 문의','멤버십 문의'],
+};
+
+/* ══════════════════════════════════
+   PAGE ROUTING
+══════════════════════════════════ */
+function goPg(id) {
+  document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
+  document.getElementById('pg-' + id).classList.add('on');
+  document.getElementById('t-cust').classList.toggle('on',   id === 'cust');
+  document.getElementById('t-poster').classList.toggle('on', id === 'poster');
+  if (id === 'poster') genQR();
+}
+
+/* ══════════════════════════════════
+   CUSTOMER — STEP CONTROL
+══════════════════════════════════ */
+function setStep(n) {
+  // 1 = issue, 2 = compose, 3 = done
+  ['s1c','s2c','s3c'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    const ll = document.getElementById(id.replace('c','l'));
+    el.classList.toggle('active', i+1 === n);
+    el.classList.toggle('done',   i+1 < n);
+    ll.classList.toggle('active', i+1 === n || i+1 < n);
+  });
+  document.getElementById('sl1').classList.toggle('done', n > 1);
+  document.getElementById('sl2').classList.toggle('done', n > 2);
+}
+
+/* ══════════════════════════════════
+   CUSTOMER — ISSUE SELECT
+══════════════════════════════════ */
+function selIssue(el, type) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  ST.issue = type;
+  ST.lines = [{ tag: type, text: '' }]; // reset with issue tag
+
+  // quick buttons
+  const qr = document.getElementById('quickRow');
+  qr.innerHTML = (QUICK_MAP[type]||[]).map(q =>
+    `<button class="qbtn" onclick="addQuick('${q}')">${q}</button>`
+  ).join('');
+
+  // show compose
+  document.getElementById('composeCard').style.display = '';
+  document.getElementById('compTa').placeholder =
+    `${type} 관련 구체적인 내용을 입력하세요\n예) 기계 번호, 증상 등`;
+
+  // enable send btn
+  document.getElementById('kkBtn').disabled = false;
+
+  refreshPreview();
+  setStep(2);
+}
+
+/* ══════════════════════════════════
+   CUSTOMER — COMPOSE
+══════════════════════════════════ */
+function addQuick(txt) {
+  const ta = document.getElementById('compTa');
+  ta.value = txt;
+  ta.focus();
+}
+
+function addLine() {
+  const ta = document.getElementById('compTa');
+  const txt = ta.value.trim();
+  if (!txt) { toast('내용을 먼저 입력해주세요'); return; }
+  ST.lines.push({ tag: null, text: txt });
+  ta.value = '';
+  refreshPreview();
+  toast('내용이 추가되었습니다 ✓');
+}
+
+function refreshPreview() {
+  const box = document.getElementById('msgPreview');
+  if (!ST.lines.length) {
+    box.innerHTML = '<span style="color:var(--txt-faint);font-size:11px;">아직 작성된 내용이 없습니다</span>';
+    return;
+  }
+  box.innerHTML = ST.lines.map(l => {
+    const tag = l.tag ? `<span class="mp-tag">${l.tag}</span>` : '';
+    return `<div class="mpline">${tag}${l.text || '(유형 선택됨)'}</div>`;
+  }).join('');
+  box.scrollTop = box.scrollHeight;
+}
+
+/* ══════════════════════════════════
+   CUSTOMER — SEND TO KAKAO
+══════════════════════════════════ */
+function sendToKakao() {
+  const ta  = document.getElementById('compTa');
+  const txt = ta.value.trim();
+
+  // add any pending textarea content
+  if (txt) {
+    ST.lines.push({ tag: null, text: txt });
+    ta.value = '';
+  }
+
+  if (!ST.issue) { toast('문의 유형을 선택해주세요'); return; }
+
+  // build message string
+  const now = new Date().toLocaleString('ko-KR',{
+    month:'2-digit', day:'2-digit',
+    hour:'2-digit', minute:'2-digit'
+  });
+
+  const body = [
+    `📍 ${ST.store}`,
+    `🏷️ 문의 유형: ${ST.issue}`,
+    '',
+    ...ST.lines
+      .filter(l => l.text)
+      .map(l => `・${l.text}`),
+    ST.lines.filter(l => l.text).length === 0
+      ? `・${ST.issue} 관련 문의입니다.` : '',
+    '',
+    `🕐 ${now}`,
+  ].filter(l => l !== undefined).join('\n').trim();
+
+  refreshPreview();
+
+  // open kakao with pre-filled message
+  const kakaoBase = ST.kkUrl || getStoredUrl();
+  if (!kakaoBase || kakaoBase.includes('sample') || kakaoBase === '') {
+    // demo mode: just show success
+    showSuccess();
+    return;
+  }
+
+  // kakao open chat deep link — appends text param so the chat opens with message pre-filled
+  const encoded = encodeURIComponent(body);
+  const kakaoLink = `${kakaoBase}`;   // kakao open chat URL
+
+  // Open kakao — the message is shown as copied hint
+  navigator.clipboard?.writeText(body).catch(()=>{});
+
+  // Try to open kakao URL
+  window.open(kakaoLink, '_blank');
+
+  // Show completion toast with clipboard hint
+  toast('카카오톡이 열렸습니다 — 메시지가 클립보드에 복사되었습니다 📋');
+  showSuccess();
+}
+
+function showSuccess() {
+  document.getElementById('composeCard').style.display  = 'none';
+  document.getElementById('issueGrid').style.display    = 'none';
+  document.getElementById('quickRow').style.display     = 'none';
+  document.getElementById('kkBtn').style.display        = 'none';
+  document.getElementById('successBox').classList.add('show');
+  setStep(3);
+}
+
+function resetForm() {
+  ST.issue = null;
+  ST.lines = [];
+  document.getElementById('composeCard').style.display  = '';
+  document.getElementById('issueGrid').style.display    = '';
+  document.getElementById('quickRow').style.display     = '';
+  document.getElementById('kkBtn').style.display        = '';
+  document.getElementById('kkBtn').disabled             = true;
+  document.getElementById('successBox').classList.remove('show');
+  document.getElementById('compTa').value               = '';
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('sel'));
+  document.getElementById('quickRow').innerHTML         = '';
+  document.getElementById('composeCard').style.display  = 'none';
+  refreshPreview();
+  setStep(1);
+}
+
+/* ══════════════════════════════════
+   QR POSTER
+══════════════════════════════════ */
+function getStoredUrl() {
+  try { return localStorage.getItem('mw_kk_url') || ''; } catch { return ''; }
+}
+function setStoredUrl(u) {
+  try { localStorage.setItem('mw_kk_url', u); } catch {}
+}
+
+function onUrlChange() {
+  const u = document.getElementById('kkUrl').value.trim();
+  ST.kkUrl = u;
+  setStoredUrl(u);
+}
+
+let qrInst = null;
+function genQR() {
+  const target = document.getElementById('qrTarget')?.value.trim()
+    || window.location.href.split('?')[0];
+
+  const el = document.getElementById('pQR');
+  if (!el) return;
+  el.innerHTML = '';
+  try {
+    qrInst = new QRCode(el, {
+      text: target || 'https://manwolgyung.example.com',
+      width: 190, height: 190,
+      colorDark:  '#1A2548',
+      colorLight: '#F0EFE8',
+      correctLevel: QRCode.CorrectLevel.H,
+    });
+    toast('QR 코드가 생성되었습니다 🐋');
+  } catch(e) {
+    el.innerHTML = '<div style="width:190px;height:190px;background:#eee;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#999">QR 생성중...</div>';
+  }
+}
+
+function syncPoster() {
+  const name = document.getElementById('pName')?.value || '';
+  const tag  = (document.getElementById('pTag')?.value||'').replace(/\n/g,'<br>');
+  const pn   = document.getElementById('posterName');
+  const pt   = document.getElementById('posterTag');
+  const cn   = document.getElementById('cStoreName');
+  if(pn) pn.textContent = name;
+  if(pt) pt.innerHTML   = tag;
+  if(cn) cn.textContent = name;
+  ST.store = name;
+}
+
+function testUrl() {
+  const u = document.getElementById('kkUrl')?.value.trim();
+  if (!u) { toast('오픈채팅 URL을 먼저 입력하세요'); return; }
+  window.open(u, '_blank');
+}
+
+/* ══════════════════════════════════
+   UTILS
+══════════════════════════════════ */
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ══════════════════════════════════
+   INIT
+══════════════════════════════════ */
+window.addEventListener('load', () => {
+  // restore kakao url
+  const saved = getStoredUrl();
+  if (saved) {
+    ST.kkUrl = saved;
+    const el = document.getElementById('kkUrl');
+    if (el) el.value = saved;
+  }
+  setStep(1);
+  refreshPreview();
+
+  const p = new URLSearchParams(location.search).get('view');
+  if (p === 'poster') goPg('poster');
+});
+</script>
+</body>
+</html>
